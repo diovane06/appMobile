@@ -5,7 +5,6 @@ import { AlertController } from '@ionic/angular';
 import { UserServiceService } from '../../services/user-service.service';
 import { ToastController } from '@ionic/angular';
 
-
 @Component({
   selector: 'app-user-add',
   templateUrl: './user-add.page.html',
@@ -26,31 +25,39 @@ export class UserAddPage implements OnInit {
   ngOnInit() {
   }
 
-
   buscaCEP() {
-    this.userService.pegaCEP(this.user.cep).subscribe(
-      res => {
-        console.log(res);
-        if(res.erro){
-          this.presentToast("CEP não localizado!");
-        }else{
-          //this.user = res;
-          //this.user.cep = res.cep;
-          this.user.logradouro = res.logradouro;
-          this.user.cidade = res.cidade;
-          this.user.bairro = res.bairro;
-          this.user.uf = res.uf;
+      this.userService.pegaCEP(this.user.cep).subscribe(
+        res => {
+          console.log(res);
+          if (res.erro) {
+            this.presentToast("CEP não localizado!");
+          } else {
+            //this.user = res;
+            //this.user.cep = res.cep;
+            this.user.logradouro = res.logradouro;
+            this.user.localidade = res.localidade;
+            this.user.bairro = res.bairro;
+            this.user.uf = res.uf;
+          }
+        },
+        error => {
+          console.error(error)
         }
-
-      },
-      error => {
-        console.error(error)
-      }
-    )
-  }
+      )
+    }
+  
 
   salvar() {
     try {
+      this.userService.add(this.user).then(
+        res =>{
+          console.log('Dados Salvos firebase...', this.user);
+        },
+        erro =>{
+          console.log('Erro...',erro);
+        }
+      )
+      ;
       this.storage.set('nome', this.user.nome);
       this.storage.set('email', this.user.email);
       this.storage.set('senha', this.user.senha);
@@ -75,7 +82,7 @@ export class UserAddPage implements OnInit {
     await alert.present();
   }
 
-  async presentToast(texto:string) {
+  async presentToast(texto: string) {
     const toast = await this.toastController.create({
       message: texto,
       duration: 2000
